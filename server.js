@@ -1,45 +1,29 @@
-var io      = require('socket.io'),
-    express = require('express');
+var express = require('express');
+var path = require('path');
+var app = express();
+var http = require('http').Server(app);
+var io = require('socket.io')(http);
 
-var app    = express(),
-    socket = io.listen(app),
-    store  = new express.session.MemoryStore;
-app.use(express.cookieParser());
-app.use(express.session({ secret: 'something', store: store }));
+app.use(express.static(path.join(__dirname ,'webpage')))
 
-app.get('/', function(req, res) {
-  var old = req.session.email;
-  req.session.email = req.param('email');
 
-  res.header('Content-Type', 'text/plain');
-  res.send("Email was '" + old + "', now is '" + req.session.email + "'.");
-});
+io.on('connection', function(socket){
+  console.log('a user connected');
 
-socket.on('connection', function(client) {
-  // We declare that the first message contains the SID.
-  // This is where we handle the first message.
-  client.once('message', function(sid) {
-    store.get(sid, function(err, session) {
-      if (err || !session) {
-        // Do some error handling, bail.
-        return;
-      }
+  socket.on('chat message', function(msg){
+    console.log('message: ' + msg);
+   	io.emit('chat message', msg);
+  		// socket.broadcast.emit(msg);
+  });
 
-      // Any messages following are your chat messages.
-      client.on('message', function(message) {
-        if (message.email === session.email) {
-          socket.broadcast(message.text);
-        }
-      });
-    });
+  //user is active
+  socket.on('disconnect', function(){
+    console.log('user disconnected');
   });
 });
 
-app.listen(4000);
 
 
-function createRoomId(){
-	var current_date = (new Date()).valueOf().toString();
-	var random = Math.random().toString();
-	return crypto.createHash('sha1').update(current_date + random).digest('hex');
-}
+http.listen(3000, function(){
+  console.log('listening on *:3000');
+});
