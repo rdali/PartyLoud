@@ -110,7 +110,9 @@ app.get('/play', (req, res)=>{
 		return promiseChain.then(()=> new Promise ((resolve)=>
 			{
 				console.log('audio message ' + room);
-				io.emit('audio message ' + room, {command: "play"});
+				socket.volatile.emit('audio message ' + room, {command: "play"});
+                resolve();
+                
 			}));
 	}, Promise.resolve());
 	requests.then(()=> {res.end("sent play");});
@@ -122,7 +124,9 @@ app.get('/pause', (req, res)=>{
 		return promiseChain.then(()=> new Promise ((resolve)=>
 			{
 				console.log('audio message ' + room);
-				io.emit('audio message ' + room, {command: "pause"});
+				socket.volatile.emit('audio message ' + room, {command: "pause"});
+                resolve();
+
 			}));
 	}, Promise.resolve());
 	requests.then(()=> {res.end("sent pause");});
@@ -133,7 +137,7 @@ app.get('/reset', (req, res)=>{
 		return promiseChain.then(()=> new Promise ((resolve)=>
 			{
 				console.log('audio message ' + room);
-				io.emit('audio message ' + room, {command: "reset"});
+				socket.volatile.emit('audio message ' + room, {command: "reset"});
                 resolve();
 			}));
 	}, Promise.resolve());
