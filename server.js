@@ -92,7 +92,12 @@ function setCookie(req, res, next) {
         console.log("this guy already has a cookie : " + cookieVal)
     }
     req.params.roomid=cookieVal;
-    activeRooms.pushIfNotExist(cookieVal, (other)=>{
+    
+    activeRooms.pushIfNotExist(
+        {
+            roomid: cookieVal,
+            socketNamespace: io.of('/'+cookieVal)
+        }, (other)=>{
     	return other === cookieVal;
     });
 
