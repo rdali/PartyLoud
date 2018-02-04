@@ -29,6 +29,7 @@ app.use(session({
 
 app.use('/', express.static(path.join(__dirname, 'webpage/home')))
 app.use('/', express.static(path.join(__dirname, 'webpage/room')))
+app.use('/', express.static(path.join(__dirname, 'webpage/common')))
 
 app.get('/resetCookie', (req, res) => {
     res.clearCookie("roomid");
