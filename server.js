@@ -30,7 +30,7 @@ app.use(session({
 app.use('/', express.static(path.join(__dirname, 'webpage/home')))
 app.use('/', express.static(path.join(__dirname, 'webpage/room')))
 
-app.get('/reset', (req, res) => {
+app.get('/resetCookie', (req, res) => {
     res.clearCookie("roomid");
     // res.clearCookie("roomid");
 
@@ -47,26 +47,25 @@ app.get('/room', (req, res)=>{
 	res.sendFile(path.join(__dirname, 'webpage/room/index.html'));
 });
 
-app.get('/run', (req, res)=>{
-	let requests = activeRooms.reduce((promiseChain, room)=>{
-		return promiseChain.then(()=> new Promise ((resolve)=>
-			{
-				console.log('audio message ' + room);
-				io.emit('audio message ' + room, {command: "play"});
-			}));
-	}, Promise.resolve());
-	requests.then(()=> {res.end("sent");});
+
+
+app.get('/join', (req, res)=>{
+	console.log(activeRooms);
+	var roomId = req.query.id;
+	console.log(roomId);
+
+	if(activeRooms.indexOf(roomId) > -1){
+        res.redirect('/room?id=' + roomId);
+	}
+	else{
+		//not a valid room
+		res.redirect('/?error=NaNroom')
+	}
 })
 
 
 io.on('connection', function(socket) {
     console.log('a user connected');
-
-    socket.on('chat message', function(msg) {
-        console.log('message: ' + msg);
-        
-        // socket.broadcast.emit(msg);
-    });
 
     //user is active
     socket.on('disconnect', function() {
@@ -100,8 +99,48 @@ function setCookie(req, res, next) {
 }
 
 
+////////////////////////////////////
+/////MP3 APIs
+////////////////////////////////////
+////////////////////////////////////
+app.get('/play', (req, res)=>{
+	console.log(activeRooms)
+	let requests = activeRooms.reduce((promiseChain, room)=>{
+		return promiseChain.then(()=> new Promise ((resolve)=>
+			{
+				console.log('audio message ' + room);
+				io.emit('audio message ' + room, {command: "play"});
+			}));
+	}, Promise.resolve());
+	requests.then(()=> {res.end("sent play");});
+})
+app.get('/pause', (req, res)=>{
+	console.log(activeRooms)
 
-
+	let requests = activeRooms.reduce((promiseChain, room)=>{
+		return promiseChain.then(()=> new Promise ((resolve)=>
+			{
+				console.log('audio message ' + room);
+				io.emit('audio message ' + room, {command: "pause"});
+			}));
+	}, Promise.resolve());
+	requests.then(()=> {res.end("sent pause");});
+})
+app.get('/reset', (req, res)=>{
+	console.log(activeRooms)
+	let requests = activeRooms.reduce((promiseChain, room)=>{
+		return promiseChain.then(()=> new Promise ((resolve)=>
+			{
+				console.log('audio message ' + room);
+				io.emit('audio message ' + room, {command: "reset"});
+                resolve();
+			}));
+	}, Promise.resolve());
+	requests.then(()=> {res.end("sent reset");});
+})
+////////////////////////////////////
+////////////////////////////////////
+////////////////////////////////////
 
 http.listen(3000, function() {
     console.log('listening on *:3000');

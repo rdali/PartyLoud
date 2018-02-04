@@ -13,7 +13,11 @@
     <header>
         <h1>PartyLoud</h1>
     </header>
-    <div>Your Party ID is <span id="partyId"></span>.</div>
+    <div>Your Party ID is:
+        <textarea id="partyId" class="js-copytextarea" readonly></textarea>
+        <button class="js-textareacopybtn" style="vertical-align:top;">Copy PartyID</button>
+
+    </div>
         <audio id="audio" controls>
             <source src="NeMeQuittePas.mp3" type="audio/mpeg"> Your browser does not support the audio element.
         </audio>
